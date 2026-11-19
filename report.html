@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Item - FindIt</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5fb;
+            margin: 0;
+            padding: 30px 15px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px #0001;
+        }
+        h1 { color: #174ea6; text-align: center; }
+        p { text-align: center; color: #666; }
+        label {
+            display: block;
+            margin-top: 17px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+        textarea { resize: vertical; }
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 24px;
+            border: none;
+            border-radius: 7px;
+            background: #174ea6;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #0d3678; }
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #174ea6;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📦 Report an Item</h1>
+    <p>Help reunite lost items with their owners.</p>
+
+    <form method="POST" action="/report">
+        <label>Item Name *</label>
+        <input type="text" name="name"
+               placeholder="Enter item name" required>
+
+        <label>Category *</label>
+        <select name="category" required>
+            <option value="">Select category</option>
+            <option>Electronics</option>
+            <option>Documents</option>
+            <option>Bags</option>
+            <option>Accessories</option>
+            <option>Clothing</option>
+            <option>Other</option>
+        </select>
+
+        <label>Item Status *</label>
+        <select name="status" required>
+            <option value="Lost"
+                {% if status == "Lost" %}selected{% endif %}>
+                Lost
+            </option>
+            <option value="Found"
+                {% if status == "Found" %}selected{% endif %}>
+                Found
+            </option>
+        </select>
+
+        <label>Description</label>
+        <textarea name="description" rows="4"
+                  placeholder="Describe the item"></textarea>
+
+        <label>Location *</label>
+        <input type="text" name="location"
+               placeholder="Where was it lost or found?" required>
+
+        <label>Contact Details *</label>
+        <input type="text" name="contact"
+               placeholder="Phone number or email" required>
+
+        <button type="submit">Submit Report</button>
+    </form>
+
+    <a class="back" href="/">← Back to Home</a>
+</div>
+</body>
+</html>
