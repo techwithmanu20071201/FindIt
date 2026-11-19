@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 
@@ -14,7 +15,7 @@ def get_db():
     return conn
 
 
-# Create database and table if it does not already exist
+# Create database and table
 def initialize_database():
     conn = get_db()
 
@@ -35,60 +36,47 @@ def initialize_database():
     conn.close()
 
 
-# Homepage, search, and Lost/Found filters
+# Homepage and search
 @app.route("/", methods=["GET"])
 def home():
     search = request.args.get("search", "").strip()
-    status_filter = request.args.get("status", "All").strip()
-
-    # Accept only the three supported filter values
-    if status_filter not in ("All", "Lost", "Found"):
-        status_filter = "All"
-
-    query = "SELECT * FROM items WHERE 1=1"
-    parameters = []
-
-    # Search item name, category, location, and description
-    if search:
-        query += """
-            AND (
-                name LIKE ?
-                OR category LIKE ?
-                OR location LIKE ?
-                OR description LIKE ?
-            )
-        """
-        search_value = f"%{search}%"
-        parameters.extend([search_value] * 4)
-        
-# Apply Lost or Found filter
-    if status_filter in ("Lost", "Found"):
-        query += " AND status = ?"
-        parameters.append(status_filter)
-
-    query += " ORDER BY id DESC"
 
     conn = get_db()
-    items = conn.execute(query, parameters).fetchall()
+
+    if search:
+        items = conn.execute("""
+            SELECT * FROM items
+            WHERE name LIKE ?
+            OR category LIKE ?
+            OR location LIKE ?
+            OR description LIKE ?
+            ORDER BY id DESC
+        """, tuple([f"%{search}%"] * 4)).fetchall()
+    else:
+        items = conn.execute("""
+            SELECT * FROM items ORDER BY id DESC
+        """).fetchall()
+
     conn.close()
 
     return render_template(
         "index.html",
         items=items,
-        search=search,
-        status_filter=status_filter
+        search=search
     )
 
 
-# Report a Lost or Found item
+# Report Lost or Found item
 @app.route("/report", methods=["GET", "POST"])
 def report():
+
     status = request.args.get("status", "Lost")
 
     if status not in ("Lost", "Found"):
         status = "Lost"
 
     if request.method == "POST":
+
         name = request.form.get("name", "").strip()
         category = request.form.get("category", "").strip()
         description = request.form.get("description", "").strip()
@@ -103,6 +91,7 @@ def report():
             return "Invalid status.", 400
 
         conn = get_db()
+
         conn.execute("""
             INSERT INTO items
             (name, category, status, description, location, contact)
@@ -131,8 +120,6 @@ def test():
     """
 
 
-# Initialize database when Flask is loaded
-initialize_database()
-
 if __name__ == "__main__":
+    initialize_database()
     app.run(host="0.0.0.0", port=5000, debug=True)
